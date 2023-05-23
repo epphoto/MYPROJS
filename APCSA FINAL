@@ -1,48 +1,57 @@
 import requests
-from bs4 import BeautifulSoup
 
-# Get user preferences
+def search_properties(location, bedrooms, bathrooms, price_limit):
+    url = "https://zillow56.p.rapidapi.com/search"
+
+    querystring = {
+        "location": location,
+        "bedrooms": bedrooms,
+        "bathrooms": bathrooms,
+        "price_limit": price_limit
+    }
+
+    headers = {
+        "X-RapidAPI-Key": "c5da8bec4cmsh04f03cdef16ad56p152732jsn5c05da9a903e",
+        "X-RapidAPI-Host": "zillow56.p.rapidapi.com"
+    }
+
+    response = requests.get(url, headers=headers, params=querystring)
+
+    if response.status_code == 200:
+        data = response.json()
+
+        # Filter properties based on criteria
+        filtered_properties = []
+        for property in data:
+            if (
+                property.get('bedrooms') == bedrooms and
+                property.get('bathrooms') == bathrooms and
+                property.get('price') <= price_limit
+            ):
+                filtered_properties.append(property)
+
+        return filtered_properties
+    else:
+        print("Error occurred. Status Code:", response.status_code)
+        return None
+
+# Prompt user for inputs
+location = input("Enter the location: ")
 bedrooms = input("Enter the number of bedrooms: ")
 bathrooms = input("Enter the number of bathrooms: ")
-square_footage = input("Enter the desired square footage: ")
-zip_code = input("Enter the zip code: ")
+price_limit = float(input("Enter the price limit: "))
 
-# Construct the search URL using user preferences
-search_url = f"https://www.zillow.com/homes/for_sale/{zip_code}/0_singlestory/days_sort/{bedrooms}-_beds/{bathrooms}-_baths/{square_footage}-_sqft/0-99999999_price/"
+# Search properties based on user inputs
+results = search_properties(location, bedrooms, bathrooms, price_limit)
 
-# Send a GET request to the search URL
-response = requests.get(search_url)
-
-# Parse the HTML content using BeautifulSoup
-soup = BeautifulSoup(response.content, 'html.parser')
-
-# Use BeautifulSoup to scrape data from the search results
-listings = soup.find_all('ul', class_='photo-cards')
-
-if not listings:  # Check if the list is empty
-    print("No listings found.")
+# Display the filtered properties
+if results:
+    for property in results:
+        print("Property ID:", property.get('id'))
+        print("Price:", property.get('price'))
+        print("Bedrooms:", property.get('bedrooms'))
+        print("Bathrooms:", property.get('bathrooms'))
+        print("Description:", property.get('description'))
+        print("---")
 else:
-    listings = listings[0].find_all('li')
-
-    # Get the average price for the same parameters
-    price_list = []
-    for listing in listings:
-        listing_price = listing.find('div', class_='list-card-price').text.strip()
-        price_list.append(int(listing_price.replace('$', '').replace(',', '')))
-
-    average_price = sum(price_list) / len(price_list)
-
-    # Iterate over listings and extract desired information
-    for listing in listings:
-        listing_title = listing.find('h3', class_='list-card-addr').text.strip()
-        listing_price = listing.find('div', class_='list-card-price').text.strip()
-
-        if int(listing_price.replace('$', '').replace(',', '')) < average_price:
-            value = "Good Value"
-        else:
-            value = "Bad Value"
-
-        print('Title:', listing_title)
-        print('Price:', listing_price)
-        print('Value:', value)
-        print('---')
+    print("No properties found.")
