@@ -17,41 +17,16 @@ def search_properties(location, bedrooms, bathrooms, price_limit):
 
     response = requests.get(url, headers=headers, params=querystring)
 
-    if response.status_code == 200:
-        data = response.json()
-
-        # Filter properties based on criteria
-        filtered_properties = []
-        for property in data:
-            if (
-                property.get('bedrooms') == bedrooms and
-                property.get('bathrooms') == bathrooms and
-                property.get('price') <= price_limit
-            ):
-                filtered_properties.append(property)
-
-        return filtered_properties
-    else:
-        print("Error occurred. Status Code:", response.status_code)
-        return None
+    return response.json()
 
 # Prompt user for inputs
 location = input("Enter the location: ")
 bedrooms = input("Enter the number of bedrooms: ")
 bathrooms = input("Enter the number of bathrooms: ")
-price_limit = float(input("Enter the price limit: "))
+price_limit = input("Enter the price limit: ")
 
 # Search properties based on user inputs
-results = search_properties(location, bedrooms, bathrooms, price_limit)
+result = search_properties(location, bedrooms, bathrooms, price_limit)
 
-# Display the filtered properties
-if results:
-    for property in results:
-        print("Property ID:", property.get('id'))
-        print("Price:", property.get('price'))
-        print("Bedrooms:", property.get('bedrooms'))
-        print("Bathrooms:", property.get('bathrooms'))
-        print("Description:", property.get('description'))
-        print("---")
-else:
-    print("No properties found.")
+# Display the result
+print(result)
