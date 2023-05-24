@@ -1,0 +1,88 @@
+const axios = require('axios');
+
+const getLocation = () => {
+  return new Promise((resolve) => {
+    const readline = require('readline').createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+
+    readline.question('Where are the properties you\'re looking for? ', (location) => {
+      resolve(location);
+      readline.close();
+    });
+  });
+};
+
+const getMaxPrice = () => {
+  return new Promise((resolve) => {
+    const readline = require('readline').createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+
+    readline.question('How much are you willing to spend? ', (maxPrice) => {
+      resolve(maxPrice);
+      readline.close();
+    });
+  });
+};
+
+const getMinBedrooms = () => {
+  return new Promise((resolve) => {
+    const readline = require('readline').createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+
+    readline.question('How many bedrooms do you need minimum? ', (bedMin) => {
+      resolve(bedMin);
+      readline.close();
+    });
+  });
+};
+
+const getMinBathrooms = () => {
+  return new Promise((resolve) => {
+    const readline = require('readline').createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+
+    readline.question('How many bathrooms do you need minimum? ', (bathMin) => {
+      resolve(bathMin);
+      readline.close();
+    });
+  });
+};
+
+const searchProperties = async () => {
+  const location = await getLocation();
+  const maxPrice = await getMaxPrice();
+  const bedMin = await getMinBedrooms();
+  const bathMin = await getMinBathrooms();
+
+  const url = "https://zillow56.p.rapidapi.com/search";
+  const querystring = {
+    location: location,
+    price_max: maxPrice,
+    beds_min: bedMin,
+    baths_min: bathMin
+  };
+  const headers = {
+    "X-RapidAPI-Key": "c5da8bec4cmsh04f03cdef16ad56p152732jsn5c05da9a903e",
+    "X-RapidAPI-Host": "zillow56.p.rapidapi.com"
+  };
+
+  try {
+    const response = await axios.get(url, {
+      headers: headers,
+      params: querystring
+    });
+    console.log(response.data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+searchProperties();
