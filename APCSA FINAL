@@ -1,18 +1,33 @@
 import requests
-loc = input("Where are the properties you're looking for?")
-maxPrice = input("How much are you willing to spend?")
-bedMin = input("How many bedrooms do you need minimum?")
-bathMin = input("How many bathrooms do you need minimum")
 
-url = "https://zillow56.p.rapidapi.com/search"
+def search_properties(location, bedrooms, bathrooms, price_limit):
+    url = "https://zillow56.p.rapidapi.com/search"
 
-querystring = {"location":loc,"price_max":maxPrice,"beds_min":bedMin,"baths_min":bathMin}
+    querystring = {
+        "location": location,
+        "bedrooms": bedrooms,
+        "bathrooms": bathrooms,
+        "price_limit": price_limit,
+        "output":"xlsx"
+    }
 
-headers = {
-	"X-RapidAPI-Key": "c5da8bec4cmsh04f03cdef16ad56p152732jsn5c05da9a903e",
-	"X-RapidAPI-Host": "zillow56.p.rapidapi.com"
-}
+    headers = {
+        "X-RapidAPI-Key": "eab3986ed1msh37d8960a7073216p168316jsn1d31bebec7ce",
+        "X-RapidAPI-Host": "zillow56.p.rapidapi.com"
+    }
 
-response = requests.get(url, headers=headers, params=querystring)
+    response = requests.get(url, headers=headers, params=querystring)
 
-print(response.json())
+    return response.json()
+
+# Prompt user for inputs
+location = input("Enter the location: ")
+bedrooms = input("Enter the number of bedrooms: ")
+bathrooms = input("Enter the number of bathrooms: ")
+price_limit = input("Enter the price limit: ")
+
+# Search properties based on user inputs
+result = search_properties(location, bedrooms, bathrooms, price_limit)
+
+# Print the entire response for examination
+print(result)
